@@ -1,76 +1,88 @@
 const path = require("path");
-const sqlite3 = require("sqlite3").verbose();
+const Database = require("better-sqlite3");
 
 const dbPath = path.join(__dirname, "data.db");
 let db;
 
 function init() {
   return new Promise((resolve, reject) => {
-    db = new sqlite3.Database(dbPath, (err) => {
-      if (err) return reject(err);
+    try {
+      // Abrir la base de datos
+      db = new Database(dbPath);
 
-      db.serialize(() => {
-        db.run(`
-          CREATE TABLE IF NOT EXISTS accounts (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            username TEXT UNIQUE,
-            password_enc TEXT,
-            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-          )
-        `);
+      // Crear tablas
+      db.prepare(`
+        CREATE TABLE IF NOT EXISTS accounts (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          username TEXT UNIQUE,
+          password_enc TEXT,
+          created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        )
+      `).run();
 
-        db.run(`
-          CREATE TABLE IF NOT EXISTS schedules (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            account_id INTEGER,
-            video_path TEXT,
-            caption TEXT,
-            cron_expr TEXT,
-            active INTEGER DEFAULT 1,
-            last_run DATETIME,
-            FOREIGN KEY(account_id) REFERENCES accounts(id)
-          )
-        `);
+      db.prepare(`
+        CREATE TABLE IF NOT EXISTS schedules (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          account_id INTEGER,
+          video_path TEXT,
+          caption TEXT,
+          cron_expr TEXT,
+          active INTEGER DEFAULT 1,
+          last_run DATETIME,
+          FOREIGN KEY(account_id) REFERENCES accounts(id)
+        )
+      `).run();
 
-        // Crear un wrapper con métodos promisificados
-        const dbWrapper = {
-          // Método run para INSERT, UPDATE, DELETE
-          run(sql, params = []) {
-            return new Promise((resolve, reject) => {
-              db.run(sql, params, function(err) {
-                if (err) reject(err);
-                else resolve({ lastID: this.lastID, changes: this.changes });
-              });
-            });
-          },
+      // Crear wrapper con API idéntica a la anterior
+      const dbWrapper = {
+        // INSERT / UPDATE / DELETE
+        run(sql, params = []) {
+          return new Promise((resolve, reject) => {
+            try {
+              const stmt = db.prepare(sql);
+              const result = stmt.run(params);
+              resolve({ lastID: result.lastInsertRowid, changes: result.changes });
+            } catch (err) {
+              reject(err);
+            }
+          });
+        },
 
-          // Método get para SELECT que devuelve una fila
-          get(sql, params = []) {
-            return new Promise((resolve, reject) => {
-              db.get(sql, params, (err, row) => {
-                if (err) reject(err);
-                else resolve(row);
-              });
-            });
-          },
+        // SELECT 1 fila
+        get(sql, params = []) {
+          return new Promise((resolve, reject) => {
+            try {
+              const stmt = db.prepare(sql);
+              const row = stmt.get(params);
+              resolve(row);
+            } catch (err) {
+              reject(err);
+            }
+          });
+        },
 
-          // Método all para SELECT que devuelve múltiples filas
-          all(sql, params = []) {
-            return new Promise((resolve, reject) => {
-              db.all(sql, params, (err, rows) => {
-                if (err) reject(err);
-                else resolve(rows);
-              });
-            });
-          },
+        // SELECT muchas filas
+        all(sql, params = []) {
+          return new Promise((resolve, reject) => {
+            try {
+              const stmt = db.prepare(sql);
+              const rows = stmt.all(params);
+              resolve(rows);
+            } catch (err) {
+              reject(err);
+            }
+          });
+        },
 
-          // Acceso directo a la instancia de db para casos especiales
-          _db: db
-        };
+        // acceso crudo
+        _db: db
+      };
 
-        resolve(dbWrapper);
-      });
-    });
+      resolve(dbWrapper);
+
+    } catch (err) {
+      reject(err);
+    }
   });
 }
 
