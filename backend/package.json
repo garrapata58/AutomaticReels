@@ -1,25 +1,22 @@
 {
-  "name": "reels-scheduler",
+  "name": "backend",
   "version": "1.0.0",
+  "description": "",
   "main": "app.js",
-  "type": "commonjs",
   "scripts": {
-    "start": "node app.js"
-  },
-  "engines": {
-    "node": ">=20 <23"
-  },
-  "dependencies": {
-    "better-sqlite3": "^12.5.0",
-    "dotenv": "^16.6.1",
-    "express": "^4.22.1",
-    "multer": "^2.0.2",
-    "node-cron": "^3.0.3",
-    "puppeteer": "^24.31.0",
-    "winston": "^3.18.3"
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "description": ""
+  "dependencies": {
+    "20": "^3.1.9",
+    "better-sqlite3": "^12.5.0",
+    "dotenv": "^17.2.3",
+    "express": "^5.2.1",
+    "multer": "^2.0.2",
+    "node-cron": "^4.2.1",
+    "puppeteer": "^24.33.0",
+    "winston": "^3.19.0"
+  }
 }
