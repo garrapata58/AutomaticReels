@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TikUP</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>TikUP</h1>
+        <p class="subtitle">Sube tu contenido de forma programada</p>
+
+        <div class="account-info">
+            <div class="account-label">Cuenta asociada actualmente:</div>
+            <div class="account-name">@usuario_tiktok</div>
+        </div>
+
+        <div class="upload-section">
+            <div class="section-title">📹 Subir Video</div>
+            <div class="upload-area" id="uploadArea">
+                <div class="upload-icon">📤</div>
+                <div class="upload-text">Click para seleccionar o arrastra tu video aquí</div>
+                <div class="file-info">Formato: MP4 | Tamaño máximo: 500MB</div>
+            </div>
+            <input type="file" id="fileInput" accept=".mp4,video/mp4">
+            <div class="selected-file" id="selectedFile"></div>
+        </div>
+
+        <div class="timer-section">
+            <div class="section-title">⏰ Programar publicación</div>
+            <div class="timer-options">
+                <div class="timer-option" data-time="1">1 hora</div>
+                <div class="timer-option" data-time="6">6 horas</div>
+                <div class="timer-option" data-time="12">12 horas</div>
+                <div class="timer-option" data-time="24">24 horas</div>
+                <div class="timer-option" data-time="48">48 horas</div>
+                <div class="timer-option" data-time="72">72 horas</div>
+            </div>
+        </div>
+
+        <button class="submit-btn" id="submitBtn" disabled>Programar Publicación</button>
+    </div>
+
+    <script>
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInput = document.getElementById('fileInput');
+        const selectedFile = document.getElementById('selectedFile');
+        const timerOptions = document.querySelectorAll('.timer-option');
+        const submitBtn = document.getElementById('submitBtn');
+
+        let selectedFileObj = null;
+        let selectedTime = null;
+
+        uploadArea.addEventListener('click', () => fileInput.click());
+
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        });
+
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('dragover');
+        });
+
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            const files = e.dataTransfer.files;
+            if (files.length > 0 && files[0].type === 'video/mp4') {
+                handleFile(files[0]);
+            }
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                handleFile(e.target.files[0]);
+            }
+        });
+
+        function handleFile(file) {
+            selectedFileObj = file;
+            selectedFile.textContent = `✓ ${file.name} (${(file.size / 1024 / 1024).toFixed(2)} MB)`;
+            selectedFile.style.display = 'block';
+            checkFormValid();
+        }
+
+        timerOptions.forEach(option => {
+            option.addEventListener('click', () => {
+                timerOptions.forEach(opt => opt.classList.remove('selected'));
+                option.classList.add('selected');
+                selectedTime = option.dataset.time;
+                checkFormValid();
+            });
+        });
+
+        function checkFormValid() {
+            if (selectedFileObj && selectedTime) {
+                submitBtn.disabled = false;
+            } else {
+                submitBtn.disabled = true;
+            }
+        }
+
+        submitBtn.addEventListener('click', () => {
+            if (selectedFileObj && selectedTime) {
+                alert(`Video programado para publicarse en ${selectedTime} hora(s)`);
+            }
+        });
+    </script>
+</body>
+</html>
