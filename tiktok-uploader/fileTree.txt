@@ -1,0 +1,41 @@
+tiktok-uploader/
+├── backend/
+│   ├── src/
+│   │   ├── config/
+│   │   │   └── tiktok.config.js       # TikTok API credentials
+│   │   ├── controllers/
+│   │   │   └── video.controller.js    # Video upload logic
+│   │   ├── middleware/
+│   │   │   ├── auth.middleware.js     # Authentication
+│   │   │   └── upload.middleware.js   # Multer config
+│   │   ├── services/
+│   │   │   ├── tiktok.service.js      # TikTok API integration
+│   │   │   └── video.service.js       # Video processing (FFmpeg)
+│   │   ├── utils/
+│   │   │   └── helpers.js             # Utility functions
+│   │   └── app.js                     # Express app setup
+│   ├── uploads/                       # Temporary video storage
+│   ├── .env                           # Environment variables
+│   ├── package.json
+│   └── server.js                      # Entry point
+│
+├── frontend/
+│   ├── public/
+│   ├── src/
+│   │   ├── components/
+│   │   │   ├── VideoUploader.jsx      # Main upload component
+│   │   │   ├── VideoPreview.jsx       # Preview before upload
+│   │   │   └── UploadProgress.jsx     # Progress indicator
+│   │   ├── services/
+│   │   │   └── api.service.js         # API calls to backend
+│   │   ├── utils/
+│   │   │   └── videoValidator.js      # Client-side validation
+│   │   ├── App.jsx
+│   │   └── main.jsx
+│   ├── .env
+│   ├── package.json
+│   └── vite.config.js (or next.config.js)
+│
+├── .gitignore
+└── README.md
+
