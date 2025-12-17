@@ -1,17 +1,44 @@
 require('dotenv').config();
-const scheduler = require('./src/scheduler');
+const cron = require('node-cron');
+const tiktokService = require('./src/services/tiktok-puppeteer.service');
+const path = require('path');
 
-// Cron format: minute hour day month weekday
-// '*/5 * * * *'  - Every 5 minutes (for testing)
-// '0 */3 * * *'  - Every 3 hours
-// '0 9,15,21 * * *' - 9 AM, 3 PM, 9 PM daily
+// ========================================
+// 🔧 CHANGE THESE TO YOUR TIKTOK CREDENTIALS
+// ========================================
+const USERNAME = 'user3758485815594';
+const PASSWORD = 'Dt12072007@';
+// ========================================
 
-const UPLOAD_INTERVAL = process.env.UPLOAD_INTERVAL || '*/5 * * * *';
+async function uploadToTikTok() {
+  console.log(`\n🕐 [${new Date().toISOString()}] Starting upload...`);
+  
+  const videoPath = path.join(__dirname, 'videos', 'default-video.mp4');
+  const caption = 'Auto-uploaded video! 🚀 #automation #test';
+  
+  const result = await tiktokService.uploadVideo(USERNAME, PASSWORD, videoPath, caption);
+  
+  if (result.success) {
+    console.log('✅ Upload session completed successfully');
+  } else {
+    console.log('❌ Upload session failed:', result.error);
+  }
+}
 
-console.log('🚀 TikTok Auto-Uploader Started');
-scheduler.start(UPLOAD_INTERVAL);
+console.log('🚀 TikTok Auto-Uploader Started\n');
+
+// Run first upload immediately
+uploadToTikTok();
+
+// Schedule uploads every 5 minutes (for testing)
+// Change to '0 */3 * * *' for every 3 hours in production
+console.log('⏰ Scheduled uploads: Every 5 minutes\n');
+cron.schedule('*/5 * * * *', () => {
+  console.log('\n⏰ Scheduled upload triggered');
+  uploadToTikTok();
+});
 
 process.on('SIGINT', () => {
-  console.log('\n👋 Shutting down gracefully...');
+  console.log('\n👋 Shutting down...');
   process.exit(0);
 });
